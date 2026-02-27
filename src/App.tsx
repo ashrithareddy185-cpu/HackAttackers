@@ -28,7 +28,6 @@ import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { jsPDF } from 'jspdf';
 import { ChatMessage, MessagePart } from './types';
-import { analyzeImageAndChat } from './services/gemini';
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -143,7 +142,23 @@ export default function App() {
     setError(null);
 
     try {
-      const responseText = await analyzeImageAndChat(updatedMessages, SYSTEM_INSTRUCTION, selectedLanguage);
+      const response = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: updatedMessages,
+          systemInstruction: SYSTEM_INSTRUCTION,
+          language: selectedLanguage
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to analyze image.");
+      }
+
+      const data = await response.json();
+      const responseText = data.text;
       
       const assistantMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
