@@ -1,0 +1,5 @@
+{
+  "name": "VisionTalk",
+  "description": "An AI-powered conversational assistant for visually impaired users to analyze and discuss images.",
+  "requestFramePermissions": []
+}
